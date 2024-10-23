@@ -19,6 +19,7 @@ import tfar.dankstorage.utils.DankStats;
 import tfar.dankstorage.utils.PickupMode;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public class DankMenu extends AbstractContainerMenu {
 
@@ -88,8 +89,74 @@ public class DankMenu extends AbstractContainerMenu {
 
     @Override
     public void doClick(int pSlotId, int pButton, ClickType pClickType, Player pPlayer) {
-        if (pClickType != ClickType.SWAP)
+        if (pClickType == ClickType.SWAP && pSlotId > 0 && slots.get(pSlotId) instanceof DankSlot) {
+            return;
+        }
+
+        if (pClickType != ClickType.PICKUP) {
             super.doClick(pSlotId, pButton, pClickType, pPlayer);
+        } else {
+
+            if (this.quickcraftStatus != 0) {
+                this.resetQuickCraft();
+            } else if (pButton == 0 || pButton == 1) {
+                ClickAction clickaction = pButton == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
+                if (pSlotId == -999) {
+                    if (!this.getCarried().isEmpty()) {
+                        if (clickaction == ClickAction.PRIMARY) {
+                            pPlayer.drop(this.getCarried(), true);
+                            this.setCarried(ItemStack.EMPTY);
+                        } else {
+                            pPlayer.drop(this.getCarried().split(1), true);
+                        }
+                    }
+                } else {
+                    if (pSlotId < 0) {
+                        return;
+                    }
+
+                    Slot slot7 = this.slots.get(pSlotId);
+                    ItemStack itemstack9 = slot7.getItem();
+                    ItemStack itemstack10 = this.getCarried();
+                    pPlayer.updateTutorialInventoryAction(itemstack10, slot7.getItem(), clickaction);
+                    if (!this.tryItemClickBehaviourOverride(pPlayer, clickaction, slot7, itemstack9, itemstack10)) {
+                        if (itemstack9.isEmpty()) {
+                            if (!itemstack10.isEmpty()) {
+                                int i3 = clickaction == ClickAction.PRIMARY ? itemstack10.getCount() : 1;
+                                this.setCarried(slot7.safeInsert(itemstack10, i3));
+                            }
+                        } else if (slot7.mayPickup(pPlayer)) {
+                            if (itemstack10.isEmpty()) {
+                                int j3 = clickaction == ClickAction.PRIMARY ? itemstack9.getCount() : (itemstack9.getCount() + 1) / 2;
+                                Optional<ItemStack> optional1 = slot7.tryRemove(j3, Integer.MAX_VALUE, pPlayer);
+                                optional1.ifPresent(p_150421_ -> {
+                                    this.setCarried(p_150421_);
+                                    slot7.onTake(pPlayer, p_150421_);
+                                });
+                            } else if (slot7.mayPlace(itemstack10)) {
+                                if (ItemStack.isSameItemSameComponents(itemstack9, itemstack10)) {
+                                    int k3 = clickaction == ClickAction.PRIMARY ? itemstack10.getCount() : 1;
+                                    this.setCarried(slot7.safeInsert(itemstack10, k3));
+                                } else if (itemstack10.getCount() <= slot7.getMaxStackSize(itemstack10) && itemstack9.getCount() <=itemstack9.getMaxStackSize() ) {//thanks vanilla
+                                    this.setCarried(itemstack9);
+                                    slot7.setByPlayer(itemstack10);
+                                }
+                            } else if (ItemStack.isSameItemSameComponents(itemstack9, itemstack10)) {
+                                Optional<ItemStack> optional = slot7.tryRemove(
+                                        itemstack9.getCount(), itemstack10.getMaxStackSize() - itemstack10.getCount(), pPlayer
+                                );
+                                optional.ifPresent(p_150428_ -> {
+                                    itemstack10.grow(p_150428_.getCount());
+                                    slot7.onTake(pPlayer, p_150428_);
+                                });
+                            }
+                        }
+                    }
+
+                    slot7.setChanged();
+                }
+            }
+        }
     }
 
     @Override

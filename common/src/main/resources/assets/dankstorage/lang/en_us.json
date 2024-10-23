@@ -35,6 +35,9 @@
   "dankstorage.sorting_type.registry_name": "Sort: Registry Name",
   "dankstorage.sorting_type.registry_name.desc": "Registry Name: Sorts by registry name in alphabetical order *excluding* mod ids",
 
+  "dankstorage.sorting_type.modid" : "Sort: Mod id",
+  "dankstorage.sorting_type.modid.desc": "Mod id: Sorts by mod id then by registry name",
+
   "dankstorage.auto_sort": "Auto Sort:",
 
   "key.dankstorage.pickup": "Toggle Mode",

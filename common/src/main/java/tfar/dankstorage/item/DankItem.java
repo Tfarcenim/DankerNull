@@ -47,6 +47,7 @@ import java.util.Optional;
 public class DankItem extends Item {
 
     public final DankStats stats;
+
     public DankItem(Properties $$0, DankStats stats) {
         super($$0);
         this.stats = stats;
@@ -58,7 +59,7 @@ public class DankItem extends Item {
 
 
         int id = getFrequency(bag);
-        tooltip.add(CommonUtils.literal("ID: "+id));
+        tooltip.add(CommonUtils.literal("ID: " + id));
 
         if (!Screen.hasShiftDown()) {
             tooltip.add(CommonUtils.translatable("text.dankstorage.shift",
@@ -87,7 +88,7 @@ public class DankItem extends Item {
         }
     }
 
-    protected void appendDevOnly(ItemStack stack,TooltipContext context,List<Component> tooltip,TooltipFlag tooltipFlag) {
+    protected void appendDevOnly(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
 
     }
 
@@ -145,7 +146,7 @@ public class DankItem extends Item {
         return result;
     }
 
-  //  @Override
+    //  @Override
     public boolean canBeHurtBy(DamageSource source) {
         return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
@@ -241,12 +242,13 @@ public class DankItem extends Item {
         UseOnContext ctx2 = new UseOnContext2(ctx.getLevel(), ctx.getPlayer(), ctx.getHand(), toPlace.copy(), ((ItemUsageContextAccessor) ctx).getHitResult());
         InteractionResult actionResultType = toPlace.getItem().useOn(ctx2);//ctx2.getItem().onItemUse(ctx);
         if (!level.isClientSide) {
-            DankInventory dankInventory = getInventoryFrom(bag,level.getServer());
+            DankInventory dankInventory = getInventoryFrom(bag, level.getServer());
             //dankInventory.setItemDank(selected, ctx2.getItemInHand());
 
             //a wild assumption, lets see if it backfires
+            int consumed = toPlace.getCount() - ctx2.getItemInHand().getCount();
 
-            dankInventory.extractStackTarget(toPlace.getCount() - ctx2.getItemInHand().getCount(),false,toPlace);
+            dankInventory.extractStackTarget(consumed, false, toPlace);
         }
         return actionResultType;
     }
@@ -278,7 +280,7 @@ public class DankItem extends Item {
                     DankInventory handler = getInventoryFrom(bagCopy, level.getServer());
                     //a wild assumption, lets see if it backfires
 
-                    handler.extractStackTarget(toPlace.getCount() - actionResult.getObject().getCount(),false,toPlace);
+                    handler.extractStackTarget(toPlace.getCount() - actionResult.getObject().getCount(), false, toPlace);
                     player.setItemSlot(hand1, bagCopy);
                 }
             }
@@ -293,9 +295,7 @@ public class DankItem extends Item {
         }
     }
 
-
     static long lastRequest;
-
 
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
@@ -322,25 +322,26 @@ public class DankItem extends Item {
     public static void assignNextFreeId(MinecraftServer server, ItemStack stack) {
         int id = 0;
         while (true) {
-            DankSavedData tankSavedData = DankSavedData.get(id,server);
+            DankSavedData tankSavedData = DankSavedData.get(id, server);
             if (tankSavedData == null) {
-                stack.set(ModDataComponentTypes.FREQUENCY,id);
+                stack.set(ModDataComponentTypes.FREQUENCY, id);
                 return;
             }
             id++;
         }
     }
+
     @Override
     public void inventoryTick(ItemStack bag, Level level, Entity entity, int i, boolean equipped) {
         //there has to be a better way
-        if (entity instanceof ServerPlayer player && equipped) {
+        if (entity instanceof ServerPlayer player) {
             ItemStack sel = getSelectedItem(bag);
             if (!sel.isEmpty()) {
                 DankInventory dankInventory = getInventoryFrom(bag, player.server);
                 if (dankInventory != null) {
                     long amount = dankInventory.countItem(sel);
                     if (amount != sel.getCount()) {
-                        setSelectedItem(bag,sel.copyWithCount((int) amount));
+                        setSelectedItem(bag, sel.copyWithCount((int) amount));
                     }
                 }
             }
@@ -348,15 +349,14 @@ public class DankItem extends Item {
     }
 
     /////////helpers
-    public static void setSelectedItem(ItemStack bag,ItemStack item) {
+    public static void setSelectedItem(ItemStack bag, ItemStack item) {
         if (item.isEmpty()) {
             bag.remove(ModDataComponentTypes.SELECTED);
         } else {
-            bag.set(ModDataComponentTypes.SELECTED,new ItemStackComponent(item));
+            bag.set(ModDataComponentTypes.SELECTED, new ItemStackComponent(item));
         }
     }
 
-    //this can be 0 - 80
     public static ItemStack getSelectedItem(ItemStack bag) {
         return bag.getOrDefault(ModDataComponentTypes.SELECTED, ItemStackComponent.EMPTY).itemStack();
     }
@@ -377,30 +377,45 @@ public class DankItem extends Item {
     public static DankInventory getInventoryFrom(ItemStack bag, MinecraftServer server) {
         int frequency = getFrequency(bag);
         if (frequency < 0) return null;
-        return DankSavedData.get(frequency,server).getOrCreateInventory();
+        return DankSavedData.get(frequency, server).getOrCreateInventory();
     }
 
     public static void changeSelectedItem(ItemStack mainHandItem, boolean right, ServerPlayer player) {
         DankInventory dankInventory = DankItem.getInventoryFrom(mainHandItem, player.server);
         ItemStack current = getSelectedItem(mainHandItem);
-        if (dankInventory!=null) {
+        if (dankInventory != null) {
             List<ItemStack> gathered = dankInventory.getUniqueItems();
             if (!gathered.isEmpty()) {
                 int index = -1;
-                for (int i = 0; i < gathered.size();i++) {
-                    if (ItemStack.isSameItemSameComponents(current,gathered.get(i))) {
+
+                for (int i = 0; i < gathered.size(); i++) {
+                    if (ItemStack.isSameItemSameComponents(current, gathered.get(i))) {
                         index = i;
                         break;
                     }
                 }
+
+
                 if (index > -1) {
-                    int next = index+1;
+                    int next = -1;//index+1;
+
+                    if (right) {
+                        next = index + 1;
+                    } else {
+                        next = index - 1;
+                    }
+
                     if (next >= gathered.size()) {
                         next = 0;
                     }
-                    setSelectedItem(mainHandItem,gathered.get(next));
+
+                    if (next == -1) {
+                        next = gathered.size() - 1;
+                    }
+
+                    setSelectedItem(mainHandItem, gathered.get(next));
                 } else {
-                    setSelectedItem(mainHandItem,gathered.get(0));
+                    setSelectedItem(mainHandItem, gathered.getFirst());
                 }
             }
         }
@@ -420,11 +435,9 @@ public class DankItem extends Item {
 
     //0,1,2,3
     public static void cyclePickupMode(ItemStack bag, Player player) {
-        int ordinal = getPickupMode(bag).ordinal();
-        ordinal++;
-        if (ordinal > PickupMode.VALUES.length - 1) ordinal = 0;
-        PickupMode mode = PickupMode.VALUES[ordinal];
-        setPickupMode(bag, mode);
+        PickupMode mode = getPickupMode(bag);
+        PickupMode cycle = cycle(mode);
+        setPickupMode(bag, cycle);
         player.displayClientMessage(CommonUtils.translatable("dankstorage.mode." + mode), true);
     }
 
@@ -434,12 +447,10 @@ public class DankItem extends Item {
 
     //0,1,2
     public static void cyclePlacement(ItemStack bag, Player player) {
-        int ordinal = getUseType(bag).ordinal();
-        ordinal++;
-        if (ordinal >= UseType.VALUES.length) ordinal = 0;
-        UseType useType = UseType.VALUES[ordinal];
-        setUseType(bag, useType);
-        player.displayClientMessage(CommonUtils.translatable("dankstorage.usetype." + useType), true);
+        UseType useType = getUseType(bag);
+        UseType cycle = cycle(useType);
+        setUseType(bag, cycle);
+        player.displayClientMessage(CommonUtils.translatable("dankstorage.usetype." + cycle), true);
     }
 
     public static void setUseType(ItemStack bag, UseType useType) {
@@ -452,6 +463,6 @@ public class DankItem extends Item {
         if (e.ordinal() == values.length - 1) {
             return values[0];
         }
-        return values[e.ordinal()+1];
+        return values[e.ordinal() + 1];
     }
 }

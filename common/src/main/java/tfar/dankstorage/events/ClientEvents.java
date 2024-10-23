@@ -12,7 +12,6 @@ import tfar.dankstorage.network.server.C2SScrollSlotPacket;
 import tfar.dankstorage.platform.Services;
 import tfar.dankstorage.utils.CommonUtils;
 import tfar.dankstorage.utils.UseType;
-import tfar.dankstorage.world.ClientData;
 
 public class ClientEvents {
 
@@ -51,17 +50,17 @@ public class ClientEvents {
         if (!toPlace.isEmpty() && shouldPreview()) {
             Integer color = toPlace.getRarity().color().getColor();
             int c = color != null ? color : 0xFFFFFF;
-            renderHotbarItem(guiGraphics, xStart, yStart, player, toPlace);
+            renderHotbarItem(guiGraphics, xStart, yStart, toPlace);
         }
         UseType mode = DankItem.getUseType(bag);
-        MutableComponent translate = CommonUtils.translatable("dankstorage.usetype." + mode);
+        MutableComponent translate = mode.translate();
 
         final int stringX = xStart + 8 - mc.font.width(translate) / 2;
         final int stringY = yStart + 16;
         guiGraphics.drawString(mc.font,translate, stringX, stringY, 0xffffff);
     }
 
-    private static void renderHotbarItem(GuiGraphics poses, int x, int y, Player player, ItemStack stack) {
+    private static void renderHotbarItem(GuiGraphics poses, int x, int y, ItemStack stack) {
         poses.renderFakeItem(stack, x, y);
         poses.renderItemDecorations(mc.font, stack, x, y);
     }

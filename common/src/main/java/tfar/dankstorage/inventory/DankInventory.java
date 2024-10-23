@@ -487,7 +487,10 @@ public class DankInventory implements ContainerData {
         if (nbt.contains("locked")) {
             frequencyLocked = nbt.getBoolean("locked");
         }
-        sortingType = nbt.contains("SortingType") ? SortingType.valueOf(nbt.getString("SortingType")) : SortingType.descending;
+
+        try {
+            if (nbt.contains("SortingType")) sortingType = SortingType.valueOf(nbt.getString("SortingType"));
+        } catch (Exception e) {}
         if (nbt.contains("AutoSort")) {
             autoSort = nbt.getBoolean("AutoSort");
         }
