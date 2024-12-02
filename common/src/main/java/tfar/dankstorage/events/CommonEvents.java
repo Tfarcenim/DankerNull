@@ -99,7 +99,7 @@ public class CommonEvents {
             int stackLimit = inv.capacity;
             int total = Math.min(toInsert.getCount() + existing.getCount(), stackLimit);
             //doesn't matter if it overflows because it's all gone lmao
-            inv.setItemDank(slot, CommonUtils.copyStackWithSize(existing, total));
+            inv.setItemDank(slot, existing.copyWithCount(total));
             toInsert.setCount(0);
         }
     }
@@ -116,7 +116,7 @@ public class CommonEvents {
                 inv.setItemDank(slot, pickup.copy());
                 pickup.setCount(0);
             } else {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(pickup, stackLimit));
+                inv.setItemDank(slot, pickup.copyWithCount(stackLimit));
                 pickup.setCount(remainder);
             }
             return;
@@ -128,10 +128,10 @@ public class CommonEvents {
             int remainder = total - stackLimit;
             //no overflow
             if (remainder <= 0) {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(existing, total));
+                inv.setItemDank(slot,existing.copyWithCount(total));
                 pickup.setCount(0);
             } else {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(pickup, stackLimit));
+                inv.setItemDank(slot,pickup.copyWithCount(stackLimit));
                 pickup.setCount(remainder);
             }
         }
@@ -149,7 +149,7 @@ public class CommonEvents {
                 inv.setItemDank(slot, toInsert.copy());
                 toInsert.setCount(0);
             } else {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(toInsert, stackLimit));
+                inv.setItemDank(slot, toInsert.copyWithCount(stackLimit));
                 toInsert.setCount(remainder);
             }
             return;
@@ -161,18 +161,18 @@ public class CommonEvents {
             int remainder = total - stackLimit;
             //no overflow
             if (remainder <= 0) {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(existing, total));
+                inv.setItemDank(slot, existing.copyWithCount(total));
                 toInsert.setCount(0);
             } else {
-                inv.setItemDank(slot, CommonUtils.copyStackWithSize(toInsert, stackLimit));
+                inv.setItemDank(slot, toInsert.copyWithCount(stackLimit));
                 toInsert.setCount(remainder);
             }
         }
     }
 
     public static boolean areItemStacksCompatible(ItemStack stackA, ItemStack stackB, boolean oredict) {
-        return oredict ? ItemStack.isSameItemSameComponents(stackA, stackB) && ItemStack.isSameItem(stackA, stackB) /*|| Utils.areItemStacksConvertible(stackA, stackB) */:
-                ItemStack.isSameItemSameComponents(stackA, stackB) && ItemStack.isSameItem(stackA, stackB);
+        return oredict ? ItemStack.isSameItemSameComponents(stackA, stackB) /*|| Utils.areItemStacksConvertible(stackA, stackB) */:
+                ItemStack.isSameItemSameComponents(stackA, stackB);
     }
 
     public static boolean doesItemStackExist(ItemStack stack, List<ItemStack> filter, boolean oredict) {

@@ -460,9 +460,6 @@ public class DankItem extends Item {
 
     public static <E extends Enum<E>> E cycle(E e) {
         E[] values = (E[]) e.getClass().getEnumConstants();
-        if (e.ordinal() == values.length - 1) {
-            return values[0];
-        }
-        return values[e.ordinal() + 1];
+        return values[(e.ordinal() + 1) % values.length];
     }
 }

@@ -43,7 +43,7 @@ public class S2CSendGhostSlotPacket implements S2CModPacket {
     public void handleClient() {
         Player player = CommonClient.getLocalPlayer();
         if (player != null && player.containerMenu instanceof DankMenu dankMenu && windowId == player.containerMenu.containerId) {
-            dankMenu.dankInventory.setGhostItem(slot,stack.getItem());
+            dankMenu.dankInventory.setGhostItem(slot,stack);
         }
     }
 

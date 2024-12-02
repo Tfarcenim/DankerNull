@@ -1,6 +1,5 @@
 package tfar.dankstorage.network.server;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -33,10 +32,6 @@ public record C2SLockSlotPacket(int slot) implements C2SModPacket {
             DankInventory inventory = dankContainer.dankInventory;
             inventory.toggleGhostItem(slot);
         }
-    }
-
-    public void write(FriendlyByteBuf buf) {
-        buf.writeInt(slot);
     }
 
     @Override

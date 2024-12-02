@@ -124,11 +124,7 @@ public class DankInventory implements ContainerData {
                 && checkGhostItem;
     }
 
-    public void setGhostItem(int slot, Item item) {
-        setGhostItem(slot,new ItemStack(item));
-    }
-
-    private void setGhostItem(int slot, ItemStack stack) {
+    public void setGhostItem(int slot, ItemStack stack) {
         if (inBounds(slot)) {
             getGhostItems().set(slot, stack);
         } else {
@@ -315,11 +311,8 @@ public class DankInventory implements ContainerData {
         }
 
         gathered.sort(sortingType.comparator);
-
-        for (int i = 0; i < slotCount(); i++) {
-            items.set(i, ItemStack.EMPTY);
-            ghostItems.set(i, ItemStack.EMPTY);
-        }
+        items.clear();
+        ghostItems.clear();
         //split up the gathered and add them to the slot
         int slotId = 0;
 
@@ -337,7 +330,7 @@ public class DankInventory implements ContainerData {
                     items.set(slotId, stack.copyWithCount(tankSize));
 
                     if (anyMatch(stack, lockedItems)) {
-                        ghostItems.set(slotId, stack);
+                        ghostItems.set(slotId, stack.copyWithCount(1));
                     }
 
                     slotId++;
@@ -346,7 +339,7 @@ public class DankInventory implements ContainerData {
                     items.set(slotId, stack.copyWithCount(partialStack));
 
                     if (anyMatch(stack, lockedItems)) {
-                        ghostItems.set(slotId, stack);
+                        ghostItems.set(slotId, stack.copyWithCount(1));
                     }
 
                     slotId++;
@@ -354,7 +347,7 @@ public class DankInventory implements ContainerData {
             } else {
                 items.set(slotId, stack);
                 if (anyMatch(stack, lockedItems)) {
-                    ghostItems.set(slotId, stack);
+                    ghostItems.set(slotId, stack.copyWithCount(1));
                 }
 
                 slotId++;
@@ -549,7 +542,7 @@ public class DankInventory implements ContainerData {
 
 
     public boolean hasGhostItem(int slot) {
-        return !getGhostItems().get(slot).isEmpty();
+        return !getGhostItem(slot).isEmpty();
     }
 
     public int getMaxStackSizeDank() {
@@ -557,11 +550,11 @@ public class DankInventory implements ContainerData {
     }
 
     public void toggleGhostItem(int slot) {
-        boolean loc = !getGhostItems().get(slot).isEmpty();
-        if (!loc) {
-            getGhostItems().set(slot, CommonUtils.copyStackWithSize(getItemDank(slot), 1));
+        boolean loc = hasGhostItem(slot);
+        if (loc) {
+            setGhostItem(slot, ItemStack.EMPTY);
         } else {
-            getGhostItems().set(slot, ItemStack.EMPTY);
+            setGhostItem(slot, getItemDank(slot).copyWithCount(1));
         }
         setDirty(false);
     }

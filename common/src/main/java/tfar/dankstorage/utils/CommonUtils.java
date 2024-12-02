@@ -418,15 +418,6 @@ public class CommonUtils {
         return ((DankItem) bag.getItem()).stats;
     }
 
-    @Nonnull
-    public static ItemStack copyStackWithSize(@Nonnull ItemStack itemStack, int size) {
-        if (size == 0)
-            return ItemStack.EMPTY;
-        ItemStack copy = itemStack.copy();
-        copy.setCount(size);
-        return copy;
-    }
-
 
         /*public static boolean areItemStacksConvertible(final ItemStack stack1, final ItemStack stack2) {
         if (stack1.hasTag() || stack2.hasTag()) return false;
