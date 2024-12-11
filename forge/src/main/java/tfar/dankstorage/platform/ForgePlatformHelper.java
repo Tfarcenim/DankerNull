@@ -6,13 +6,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.commons.lang3.tuple.Pair;
@@ -131,5 +134,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public CommonDockBlockEntity<?> blockEntity(BlockPos pos, BlockState state) {
         return new DockBlockEntity(pos,state);
+    }
+
+    @Override
+    public boolean onItemStackedOn(ItemStack carriedItem, ItemStack stackedOnItem, Slot slot, ClickAction action, Player player, SlotAccess carriedSlotAccess) {
+        return ForgeHooks.onItemStackedOn(carriedItem, stackedOnItem, slot, action, player, carriedSlotAccess);
     }
 }
