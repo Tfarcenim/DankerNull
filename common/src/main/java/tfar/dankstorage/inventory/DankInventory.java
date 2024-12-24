@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import tfar.dankstorage.DankStorage;
@@ -78,12 +77,12 @@ public class DankInventory implements ContainerData {
         return frequencyLocked;
     }
 
-    public int textColor() {
-        return get(TXT_COLOR);
+    public int getTextColor() {
+        return textColor;
     }
 
     public void setTextColor(int color) {
-        set(TXT_COLOR, color);
+        this.textColor = color;
     }
 
     public void toggleFrequencyLock() {
@@ -162,7 +161,9 @@ public class DankInventory implements ContainerData {
     @Override
     public void set(int slot, int value) {
         switch (slot) {
-            case TXT_COLOR -> textColor = value;
+            case TXT_COLOR -> // only set top 16 bits
+                    textColor = value;
+
             case FREQ_LOCK -> frequencyLocked = value != 0;
             case SORTING_TYPE -> sortingType = SortingType.values()[value];
             case AUTO_SORT -> autoSort = value != 0;

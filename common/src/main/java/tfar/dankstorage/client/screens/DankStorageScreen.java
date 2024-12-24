@@ -209,7 +209,7 @@ public class DankStorageScreen extends AbstractContainerScreen<DankMenu> {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
-        int color = menu.dankInventory.textColor();
+        int color = menu.dankInventory.getTextColor();
         this.frequency.setTextColor(color);
 
         PickupMode pickupMode = menu.getMode();

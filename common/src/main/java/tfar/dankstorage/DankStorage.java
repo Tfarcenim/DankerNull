@@ -18,6 +18,7 @@ import tfar.dankstorage.init.*;
 import tfar.dankstorage.mixin.MinecraftServerAccess;
 import tfar.dankstorage.platform.Services;
 import tfar.dankstorage.utils.CommonUtils;
+import tfar.dankstorage.world.DankSavedData;
 import tfar.dankstorage.world.MaxId;
 
 import java.io.File;
@@ -31,7 +32,21 @@ public class DankStorage {
     public static final String MODID = "dankstorage";
     public static final String MOD_NAME = "Dank-Storage";
     public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
-    public static MaxId maxId;
+   // public static MaxId maxId;
+
+    public static int MAX = 1000000000;
+
+    public static int firstFreeId(MinecraftServer server) {
+        int id = 0;
+        while (id < MAX) {
+            DankSavedData tankSavedData = DankSavedData.get(id, server);
+            if (tankSavedData == null) {
+                return id;
+            }
+            id++;
+        }
+        return CommonUtils.INVALID;
+    }
 
     // The loader specific projects are able to import and use any code from the common project. This allows you to
     // write the majority of your code here and load it from your loader specific projects. This example has some
@@ -71,17 +86,17 @@ public class DankStorage {
     }
 
     public static void onServerShutDown(MinecraftServer server) {
-        maxId = null;
+        //maxId = null;
         CommonUtils.uncacheRecipes();
     }
 
     public static void onServerStart(MinecraftServer server) {
         LevelStorageSource.LevelStorageAccess storageSource = ((MinecraftServerAccess)server).getStorageSource();
-        File file = storageSource.getDimensionPath(server.getLevel(Level.OVERWORLD).dimension())
+        File file = storageSource.getDimensionPath(server.overworld().dimension())
                 .resolve("data/"+ DankStorage.MODID).toFile();
         file.mkdirs();
 
-        DankStorage.maxId = DankStorage.getMaxId(server);
+        //DankStorage.maxId = DankStorage.getMaxId(server);
     }
 
     public static ResourceLocation id(String path) {

@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.item.ItemStack;
+import tfar.dankstorage.network.client.AdvancedContainerSetDataPayload;
 import tfar.dankstorage.network.client.S2CInitialSyncContainerPacket;
 import tfar.dankstorage.network.client.S2CSendExtendedSlotChangePacket;
 import tfar.dankstorage.platform.Services;
@@ -43,8 +44,8 @@ public class CustomSync implements ContainerSynchronizer {
         this.broadcastDataValue(abstractContainerMenu, i, j);
     }
 
-    private void broadcastDataValue(AbstractContainerMenu abstractContainerMenu, int i, int j) {
-        player.connection.send(new ClientboundContainerSetDataPacket(abstractContainerMenu.containerId, i, j));
+    private void broadcastDataValue(AbstractContainerMenu abstractContainerMenu, int slot, int value) {
+        Services.PLATFORM.sendToClient(new AdvancedContainerSetDataPayload((byte) abstractContainerMenu.containerId, (short) slot, value),player);
     }
 
     private void broadcastCarriedItem(ItemStack itemStack) {

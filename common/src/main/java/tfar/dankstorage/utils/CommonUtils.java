@@ -81,13 +81,13 @@ public class CommonUtils {
     public static Pair<ItemStack, Integer> compress(ItemStack stack, RegistryAccess registryAccess) {
 
         for (CraftingRecipe recipe : REVERSIBLE3x3) {
-            if (recipe.getIngredients().get(0).test(stack)) {
+            if (recipe.getIngredients().getFirst().test(stack)) {
                 return Pair.of(recipe.getResultItem(registryAccess), 9);
             }
         }
 
         for (CraftingRecipe recipe : REVERSIBLE2x2) {
-            if (recipe.getIngredients().get(0).test(stack)) {
+            if (recipe.getIngredients().getFirst().test(stack)) {
                 return Pair.of(recipe.getResultItem(registryAccess), 4);
             }
         }
@@ -113,14 +113,14 @@ public class CommonUtils {
         }
 
         for (CraftingRecipe recipe : REVERSIBLE3x3) {
-            if (recipe.getIngredients().get(0).test(stack)) {
-                return stack.getCount() >= 9;
+            if (recipe.getIngredients().getFirst().test(stack)) {
+                return stack.getCount() == 9;
             }
         }
 
         for (CraftingRecipe recipe : REVERSIBLE2x2) {
-            if (recipe.getIngredients().get(0).test(stack)) {
-                return stack.getCount() >= 4;
+            if (recipe.getIngredients().getFirst().test(stack)) {
+                return stack.getCount() == 4;
             }
         }
 
@@ -149,7 +149,7 @@ public class CommonUtils {
 
                     List<Ingredient> inputs = shapedRecipe.getIngredients();
 
-                    Ingredient first = inputs.get(0);
+                    Ingredient first = inputs.getFirst();
                     if (first != Ingredient.EMPTY) {
                         boolean same = true;
                         for (int i = 1; i < x * y; i++) {
@@ -355,7 +355,7 @@ public class CommonUtils {
             TxtColor textColor;
 
             if (frequency > INVALID) {
-                if (frequency < DankStorage.maxId.getMaxId()) {
+                if (frequency < DankStorage.firstFreeId(player.server)) {
                     DankInventory targetInventory = DankSavedData.get(frequency, player.server).getOrCreateInventory();
 
                     if (targetInventory.slotCount() == inventory.slotCount()) {
@@ -386,7 +386,7 @@ public class CommonUtils {
             TxtColor textColor;
 
             if (frequency > INVALID) {
-                if (frequency < DankStorage.maxId.getMaxId()) {
+                if (frequency < DankStorage.firstFreeId(player.server)) {
                     DankInventory targetInventory = DankSavedData.get(frequency, player.server).getOrCreateInventory();
 
                     if (targetInventory.slotCount() == DankStats.values()[changeFrequencyMenu.getCurrentTier()].slots) {

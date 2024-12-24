@@ -24,6 +24,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import tfar.dankstorage.DankStorage;
 import tfar.dankstorage.client.DankKeybinds;
 import tfar.dankstorage.client.DankTooltip;
 import tfar.dankstorage.init.ModDataComponentTypes;
@@ -320,14 +321,11 @@ public class DankItem extends Item {
     }
 
     public static void assignNextFreeId(MinecraftServer server, ItemStack stack) {
-        int id = 0;
-        while (true) {
-            DankSavedData tankSavedData = DankSavedData.get(id, server);
-            if (tankSavedData == null) {
-                stack.set(ModDataComponentTypes.FREQUENCY, id);
-                return;
-            }
-            id++;
+        int id = DankStorage.firstFreeId(server);
+        if (id > CommonUtils.INVALID) {
+            stack.set(ModDataComponentTypes.FREQUENCY, id);
+        } else {
+            stack.set(ModDataComponentTypes.FREQUENCY, DankStorage.MAX-1);
         }
     }
 
