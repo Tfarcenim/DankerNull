@@ -34,6 +34,7 @@ type="incompatible" #mandatory (Can be one of "required", "optional", "incompati
 versionRange = "*"
 ordering = "NONE"
 side = "BOTH"
+reason = "Conflicts with some connector-enabled fabric mods"
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't

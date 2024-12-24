@@ -366,7 +366,10 @@ public class CommonUtils {
                             textColor = TxtColor.GOOD;
                             if (set) {
                                 abstractDankMenu.setFrequency(frequency);
-                                player.closeContainer();
+                                ItemStack bag = abstractDankMenu.bag;
+                                if (bag.getItem() instanceof DankItem dankItem) {
+                                    player.openMenu(dankItem.createProvider(bag));
+                                }
                             }
                         }
                     } else {
