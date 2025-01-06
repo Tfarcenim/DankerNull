@@ -2,7 +2,6 @@ package tfar.dankstorage.utils;
 
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,12 +10,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -29,7 +25,6 @@ import tfar.dankstorage.menu.DankMenu;
 import tfar.dankstorage.menu.ChangeFrequencyMenu;
 import tfar.dankstorage.world.DankSavedData;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -48,26 +43,6 @@ public class CommonUtils {
         if (number >= 1000) return decimalFormat.format(number / 1000f) + "k";
 
         return Float.toString(number).replaceAll("\\.?0*$", "");
-    }
-
-    public static DankStats getStatsfromRows(int rows) {
-        switch (rows) {
-            case 1:
-                return DankStats.one;
-            case 2:
-                return DankStats.two;
-            case 3:
-                return DankStats.three;
-            case 4:
-                return DankStats.four;
-            case 5:
-                return DankStats.five;
-            case 6:
-                return DankStats.six;
-            case 9:
-                return DankStats.seven;
-        }
-        throw new IllegalStateException(String.valueOf(rows));
     }
 
     private static List<CraftingRecipe> REVERSIBLE3x3 = new ArrayList<>();
@@ -94,14 +69,14 @@ public class CommonUtils {
         return Pair.of(ItemStack.EMPTY, 0);
     }
 
-    public static Pair<ItemStack,ItemStack> getCompressingResult(ItemStack stack, ServerLevel level) {
+    public static Pair<ItemStack, ItemStack> getCompressingResult(ItemStack stack, ServerLevel level) {
         if (!canCompress(level, stack)) {
-            return Pair.of(stack,ItemStack.EMPTY);
+            return Pair.of(stack, ItemStack.EMPTY);
         } else {
-            Pair<ItemStack,Integer> result = compress(stack,level.registryAccess());
-            ItemStack compressedStack = result.getFirst().copyWithCount(stack.getCount()/result.getSecond());
+            Pair<ItemStack, Integer> result = compress(stack, level.registryAccess());
+            ItemStack compressedStack = result.getFirst().copyWithCount(stack.getCount() / result.getSecond());
             ItemStack remainder = stack.copyWithCount(stack.getCount() % result.getSecond());
-            return Pair.of(remainder,compressedStack);
+            return Pair.of(remainder, compressedStack);
         }
     }
 
@@ -129,11 +104,17 @@ public class CommonUtils {
 
 
     public static void setPickSlot(Level level, ItemStack bag, ItemStack stack) {
-
-        DankInventory dankInterface = DankItem.getInventoryFrom(bag, level.getServer());
-
-        if (dankInterface != null) {
-
+        DankInventory dankInventory = DankItem.getInventoryFrom(bag, level.getServer());
+        if (dankInventory != null) {
+            List<ItemStack> gathered = dankInventory.getUniqueItems();
+            if (!gathered.isEmpty()) {
+                for (ItemStack itemStack : gathered) {
+                    if (ItemStack.isSameItemSameComponents(stack, itemStack)) {
+                        DankItem.setSelectedItem(bag, itemStack);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -177,80 +158,6 @@ public class CommonUtils {
 
     private static CraftingInput makeCraftInput(ItemStack stack) {
         return CraftingInput.of(1, 1, List.of(stack));
-    }
-
-    public static class DummyCraftingContainer implements CraftingContainer {
-        private final NonNullList<ItemStack> items;
-        private final int width;
-        private final int height;
-
-        public DummyCraftingContainer(int p_287629_, int p_287593_) {
-            this(p_287629_, p_287593_, NonNullList.withSize(p_287629_ * p_287593_, ItemStack.EMPTY));
-        }
-
-        public DummyCraftingContainer(int p_287591_, int p_287609_, NonNullList<ItemStack> p_287695_) {
-            this.items = p_287695_;
-            this.width = p_287591_;
-            this.height = p_287609_;
-        }
-
-        public int getContainerSize() {
-            return this.items.size();
-        }
-
-        public boolean isEmpty() {
-            for (ItemStack itemstack : this.items) {
-                if (!itemstack.isEmpty()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public ItemStack getItem(int slot) {
-            return slot >= this.getContainerSize() ? ItemStack.EMPTY : this.items.get(slot);
-        }
-
-        public ItemStack removeItemNoUpdate(int slot) {
-            return ContainerHelper.takeItem(this.items, slot);
-        }
-
-        public ItemStack removeItem(int i, int i1) {
-            return ContainerHelper.removeItem(this.items, i, i1);
-        }
-
-        public void setItem(int slot, ItemStack stack) {
-            this.items.set(slot, stack);
-        }
-
-        public void setChanged() {
-        }
-
-        public boolean stillValid(Player player) {
-            return true;
-        }
-
-        public void clearContent() {
-            this.items.clear();
-        }
-
-        public int getHeight() {
-            return this.height;
-        }
-
-        public int getWidth() {
-            return this.width;
-        }
-
-        public List<ItemStack> getItems() {
-            return List.copyOf(this.items);
-        }
-
-        public void fillStackedContents(StackedContents contents) {
-            for (ItemStack itemstack : this.items) {
-                contents.accountSimpleStack(itemstack);
-            }
-        }
     }
 
     public static void merge(List<ItemStack> stacks, ItemStack toMerge) {
@@ -321,7 +228,7 @@ public class CommonUtils {
         ItemStack dank = getDank(player);
         if (!dank.isEmpty()) {
             boolean toggle = oredict(dank);
-            setOredict(dank,!toggle);
+            setOredict(dank, !toggle);
         }
     }
 
@@ -415,10 +322,6 @@ public class CommonUtils {
             }
             inventory.setTextColor(textColor.color);
         }
-    }
-
-    public static DankStats getDefaultStats(ItemStack bag) {
-        return ((DankItem) bag.getItem()).stats;
     }
 
 

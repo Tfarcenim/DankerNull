@@ -32,7 +32,6 @@ import tfar.dankstorage.init.ModItems;
 import tfar.dankstorage.item.DankItem;
 import tfar.dankstorage.item.DankItemCapability;
 import tfar.dankstorage.datagen.ModDatagen;
-import tfar.dankstorage.event.ForgeClientEvents;
 import tfar.dankstorage.network.DankPacketHandlerNeoForge;
 import tfar.dankstorage.platform.TomlConfigs;
 
@@ -63,7 +62,7 @@ public class DankStorageNeoForge {
             bus.addListener(this::onInitializeClient);
             bus.addListener(ModClientForge::keybinds);
             bus.addListener(ModClientForge::clientTool);
-            bus.addListener(ForgeClientEvents::renderStack);
+            bus.addListener(ModClientForge::renderStack);
         }
         DankStorage.init();
     }
