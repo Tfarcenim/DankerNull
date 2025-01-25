@@ -67,11 +67,13 @@ public class DankStorageNeoForge {
         DankStorage.init();
     }
 
+
+    //1543200 nanos
     public void registerObjs(RegisterEvent event) {
-        for (Map.Entry<Registry<?>,List<Pair<ResourceLocation, Supplier<?>>>> entry : registerLater.entrySet()) {
-            Registry<?> registry = entry.getKey();
-            List<Pair<ResourceLocation, Supplier<?>>> toRegister = entry.getValue();
-            for (Pair<ResourceLocation,Supplier<?>> pair : toRegister) {
+        Registry<?> registry = event.getRegistry();
+        List<Pair<ResourceLocation,Supplier<?>>> list = registerLater.get(registry);
+        if (list != null) {
+            for (Pair<ResourceLocation,Supplier<?>> pair : list) {
                 event.register((ResourceKey<? extends Registry<Object>>)registry.key(),pair.getLeft(),(Supplier<Object>)pair.getValue());
             }
         }

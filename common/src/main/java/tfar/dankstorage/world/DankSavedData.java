@@ -6,6 +6,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.Nullable;
 import tfar.dankstorage.DankStorage;
 import tfar.dankstorage.inventory.DankInventory;
 import tfar.dankstorage.platform.Services;
@@ -50,6 +51,7 @@ public class DankSavedData extends SavedData {
                 .computeIfAbsent(DankSavedData.factory(overworld,id), DankStorage.MODID+"/"+id);
     }
 
+    @Nullable
     public static DankSavedData get(int id, MinecraftServer server) {
         if (id <= CommonUtils.INVALID) throw new RuntimeException("Invalid frequency: "+id);
         ServerLevel overworld = server.overworld();
